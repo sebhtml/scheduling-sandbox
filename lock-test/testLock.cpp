@@ -1,5 +1,6 @@
 
 #include "SpinLock.h"
+#include "TicketLock.h"
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -43,6 +44,10 @@ int main(int argc, char ** argv)
     if (type == "sebstd::SpinLock")
     {
         testLockInThreads<SpinLock>(threads, lockEvents);
+    }
+    else if (type == "sebstd::TicketLock")
+    {
+        testLockInThreads<TicketLock>(threads, lockEvents);
     }
     else if (type == "std::mutex")
     {
