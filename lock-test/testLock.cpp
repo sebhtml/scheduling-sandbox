@@ -1,12 +1,17 @@
 
 #include "SpinLock.h"
 #include <iostream>
+#include <thread>
+#include <vector>
 
 using namespace std;
 using namespace sebstd;
 
 template <typename LockType>
-void testLock(const std::size_t threads, const std::size_t lockEvents);
+void testLockInThreads(const std::size_t threads, const std::size_t lockEvents);
+
+template <typename LockType>
+void testLock(const std::size_t lockEvents, LockType & lock);
 
 int main(int argc, char ** argv)
 {
@@ -14,7 +19,7 @@ int main(int argc, char ** argv)
 
     const string app(argv[i++]);
 
-    if (argc != 2)
+    if (argc != 4)
     {
         cout << "Usage:";
         cout << endl;
@@ -36,7 +41,7 @@ int main(int argc, char ** argv)
 
     if (type == "sebstd::SpinLock")
     {
-        testLock<SpinLock>(threads, lockEvents);
+        testLockInThreads<SpinLock>(threads, lockEvents);
     }
 
     return 0;
@@ -44,12 +49,36 @@ int main(int argc, char ** argv)
 
 
 template <typename LockType>
-void testLock(const std::size_t threads, const std::size_t lockEvents)
+void testLockInThreads(const std::size_t threads, const std::size_t lockEvents)
 {
+    LockType lock;
+
+    vector<thread> myThreads;
+
+    auto myFunction = testLock<LockType>;
+
     for (auto i = 0; i < threads; ++i)
     {
-        for (auto j = 0; j < lockEvents; ++j)
-        {
-        }
+        thread myThread(myFunction, lockEvents, std::ref(lock));
+
+        myThreads.push_back(std::move(myThread));
+    }
+
+    for (auto i = 0; i < threads; ++i)
+    {
+        myThreads[i].join();
+    }
+}
+
+
+template <typename LockType>
+void testLock(const std::size_t lockEvents, LockType & lock)
+{
+    for (auto i = 0; i < lockEvents; ++i)
+    {
+        lock.lock();
+        // Critical section...
+        // Do important stuff here.
+        lock.unlock();
     }
 }
