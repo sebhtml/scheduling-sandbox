@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <mutex>
 
 using namespace std;
 using namespace sebstd;
@@ -42,6 +43,10 @@ int main(int argc, char ** argv)
     if (type == "sebstd::SpinLock")
     {
         testLockInThreads<SpinLock>(threads, lockEvents);
+    }
+    else if (type == "std::mutex")
+    {
+        testLockInThreads<mutex>(threads, lockEvents);
     }
 
     return 0;
